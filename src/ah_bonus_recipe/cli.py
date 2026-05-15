@@ -217,5 +217,18 @@ def generate_recipes_command(
     print(f"Output: {output_path}")
 
 
+@app.command("serve-api")
+def serve_api(
+    host: str = typer.Option("127.0.0.1", help="Host for the API server."),
+    port: int = typer.Option(8000, min=1, max=65535, help="Port for the API server."),
+    reload: bool = typer.Option(False, help="Reload when Python files change."),
+) -> None:
+    """Run the FastAPI backend for the React frontend."""
+
+    import uvicorn
+
+    uvicorn.run("ah_bonus_recipe.web.api:app", host=host, port=port, reload=reload)
+
+
 if __name__ == "__main__":
     app()

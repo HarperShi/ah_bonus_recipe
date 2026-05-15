@@ -168,6 +168,7 @@ class RecipeBonusProductUse(BaseModel):
     product_id: int
     title: str
     url: HttpUrl | None = None
+    image_url: HttpUrl | None = None
     quantity: float
     unit: str
     packages_to_buy: int

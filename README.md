@@ -22,6 +22,14 @@ Install `uv` if needed, then run:
 uv sync --extra dev
 ```
 
+Install the React frontend dependencies:
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
 Run tests:
 
 ```bash
@@ -82,12 +90,27 @@ uv run ah-bonus generate-recipes \
 
 This writes `data/processed/latest_recipes.json`. The OpenAI API proposes structured recipes; local code validates bonus product IDs, calculates AH Bonus savings from pack counts and promotion labels, and reports known nutrition from AH product data alongside the model's full-meal nutrition estimate.
 
+Run the React/Vite website:
+
+```bash
+uv run ah-bonus serve-api --reload
+```
+
+In another terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open `http://localhost:5173`. The Vite dev server proxies `/api` requests to the Python backend on `http://127.0.0.1:8000`.
+
 ## Next Milestones
 
 1. Add SQLite or Parquet persistence if JSON becomes too slow.
 2. Improve package-size parsing and serving-size conversions for more nutrition rows.
 3. Add retry/repair loops when OpenAI returns recipes that do not meet validation.
-4. Run the Streamlit app with `uv run streamlit run src/ah_bonus_recipe/web/streamlit_app.py`.
+4. Add a production Docker setup for the API and Vite build.
 
 ## Weekly Schedule
 

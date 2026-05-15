@@ -594,6 +594,7 @@ def build_bonus_product_uses(
                 product_id=product.webshop_id,
                 title=product.title,
                 url=product.url,
+                image_url=preferred_product_image_url(product),
                 quantity=ingredient.quantity,
                 unit=ingredient.unit,
                 packages_to_buy=max(1, ingredient.packages_to_buy),
@@ -695,6 +696,14 @@ def product_text(product: BonusProduct) -> str:
         ]
         if item
     ).lower()
+
+
+def preferred_product_image_url(product: BonusProduct) -> str | None:
+    if not product.images:
+        return None
+    smaller_images = [image for image in product.images if image.width and image.width <= 400]
+    image = smaller_images[0] if smaller_images else product.images[0]
+    return image.url
 
 
 def contains_any_term(text: str, terms: set[str]) -> bool:

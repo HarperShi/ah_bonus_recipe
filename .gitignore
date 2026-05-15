@@ -5,7 +5,11 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
-.streamlit/secrets.toml
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+frontend/vite.config.d.ts
+frontend/vite.config.js
 data/raw/**
 data/processed/**
 data/discovery/**
