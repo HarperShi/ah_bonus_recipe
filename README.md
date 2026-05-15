@@ -36,13 +36,29 @@ uv run ah-bonus discover
 
 This writes timestamped artifacts to `data/discovery/`.
 
+Run the weekly scraper:
+
+```bash
+uv run ah-bonus scrape-week
+```
+
+This writes raw AH payloads to `data/raw/<week_start>_to_<week_end>/` and normalized outputs to:
+
+- `data/processed/bonus_week_<week_start>_to_<week_end>.json`
+- `data/processed/latest_bonus_week.json`
+- `data/processed/latest_products.json`
+
+For a quick smoke test without scraping every product:
+
+```bash
+uv run ah-bonus scrape-week --max-products 10
+```
+
 ## Next Milestones
 
-1. Convert all raw AH payloads into a normalized `BonusWeekDataset`.
-2. Add persistence to SQLite or Parquet.
-3. Implement the weekly scraper command behind `ah-bonus scrape-week`.
-4. Add recipe validation, savings calculation, and nutrition totals.
-5. Run the Streamlit app with `uv run streamlit run src/ah_bonus_recipe/web/streamlit_app.py`.
+1. Add SQLite or Parquet persistence if JSON becomes too slow.
+2. Add recipe validation, savings calculation, and nutrition totals.
+3. Run the Streamlit app with `uv run streamlit run src/ah_bonus_recipe/web/streamlit_app.py`.
 
 ## Weekly Schedule
 
