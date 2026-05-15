@@ -241,7 +241,9 @@ def estimate_discount_for_lines(
         )
 
     code = first_discount_code(discount_labels)
-    if code in {"DISCOUNT_FIXED_PRICE", "DISCOUNT_WEIGHT"}:
+    if code == "DISCOUNT_WEIGHT":
+        return current_price_or_unsupported(code, lines, current_unit_prices)
+    if code == "DISCOUNT_FIXED_PRICE":
         label = discount_labels[0]
         if label.price is not None:
             return supported_estimate(code, baseline, sum(line.quantity * label.price for line in lines))

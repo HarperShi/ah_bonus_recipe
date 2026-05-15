@@ -78,10 +78,11 @@ if submitted:
     for recipe in result.recipes:
         with st.expander(recipe.title, expanded=True):
             st.write(f"{recipe.cuisine} | {recipe.servings} servings | {recipe.total_time_minutes} minutes")
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Normal price", f"€{recipe.savings.baseline_total:.2f}")
-            col2.metric("Bonus price", f"€{recipe.savings.promo_total:.2f}")
-            col3.metric("Saved", f"€{recipe.savings.savings:.2f}")
+            st.metric(recipe.savings.savings_label, f"€{recipe.savings.savings:.2f}")
+            st.caption(recipe.savings.description)
+            col1, col2 = st.columns(2)
+            col1.caption(f"{recipe.savings.baseline_total_label}: €{recipe.savings.baseline_total:.2f}")
+            col2.caption(f"{recipe.savings.promo_total_label}: €{recipe.savings.promo_total:.2f}")
             if recipe.validation_warnings:
                 st.warning("\n".join(recipe.validation_warnings))
 

@@ -88,6 +88,21 @@ def test_estimate_product_savings_for_fixed_price() -> None:
     assert result.promo_total == 2.97
 
 
+def test_estimate_product_savings_for_weight_uses_pack_current_price() -> None:
+    product = bonus_product(
+        labels=[{"code": "DISCOUNT_WEIGHT", "count": 100, "price": 2.19, "unit": "GRAM"}],
+        price_before_bonus=7.59,
+        current_price=6.57,
+    )
+
+    result = estimate_product_savings(product, quantity=2)
+
+    assert result.supported is True
+    assert result.baseline_total == 15.18
+    assert result.promo_total == 13.14
+    assert result.savings == 2.04
+
+
 def test_estimate_product_savings_uses_current_price_when_label_has_no_fields() -> None:
     product = bonus_product(
         labels=[{"code": "DISCOUNT_BONUS"}],

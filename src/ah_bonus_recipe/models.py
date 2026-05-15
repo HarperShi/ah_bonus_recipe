@@ -167,9 +167,14 @@ class RecipeBonusProductUse(BaseModel):
 
 class RecipeSavingsSummary(BaseModel):
     currency: str = "EUR"
+    scope: str = "bonus_products_only"
+    description: str = "Totals are for purchased AH Bonus products used by this recipe, not the whole meal."
     baseline_total: float = 0.0
     promo_total: float = 0.0
     savings: float = 0.0
+    baseline_total_label: str = "Normal price for bonus products"
+    promo_total_label: str = "Bonus price for bonus products"
+    savings_label: str = "You save on bonus products"
     supported: bool = True
     unsupported_reasons: list[str] = Field(default_factory=list)
 
