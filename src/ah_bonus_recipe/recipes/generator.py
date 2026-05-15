@@ -656,10 +656,12 @@ def calculate_recipe_savings(
         for estimate in estimates
         if not estimate.supported and estimate.reason
     ]
+    notes = unique_notes(note for estimate in estimates for note in estimate.notes)
     return RecipeSavingsSummary(
         baseline_total=baseline_total,
         promo_total=promo_total,
         savings=round(baseline_total - promo_total, 2),
+        notes=notes,
         supported=not unsupported_reasons,
         unsupported_reasons=unsupported_reasons,
     )
@@ -704,6 +706,17 @@ def contains_term(text: str, term: str) -> bool:
     if len(term) <= 3:
         return re.search(rf"(?<!\w){escaped}(?!\w)", text) is not None
     return term.lower() in text
+
+
+def unique_notes(notes: Any) -> list[str]:
+    unique = []
+    seen = set()
+    for note in notes:
+        if not note or note in seen:
+            continue
+        unique.append(note)
+        seen.add(note)
+    return unique
 
 
 def truncate(value: str | None, max_chars: int) -> str | None:

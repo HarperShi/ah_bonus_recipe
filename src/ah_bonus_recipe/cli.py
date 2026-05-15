@@ -208,6 +208,8 @@ def generate_recipes_command(
             f"- {recipe.title}: saves €{recipe.savings.savings:.2f} on bonus products "
             f"using {len(recipe.bonus_product_uses)} bonus ingredient line(s)"
         )
+        for note in recipe.savings.notes:
+            print(f"  note: {note}")
     if result.warnings:
         print("[yellow]Warnings:[/yellow]")
         for warning in result.warnings:

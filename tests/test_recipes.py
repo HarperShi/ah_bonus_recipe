@@ -90,6 +90,13 @@ def test_generate_recipe_plan_enriches_savings_and_known_nutrition(tmp_path: Pat
                             "bonus_product_id": 2,
                             "packages_to_buy": 1,
                         },
+                        {
+                            "name": "Salt",
+                            "quantity": 1,
+                            "unit": "pinch",
+                            "bonus_product_id": None,
+                            "packages_to_buy": 0,
+                        },
                     ],
                     "prep": ["Boil water."],
                     "steps": ["Cook pasta.", "Warm sauce."],
@@ -110,8 +117,13 @@ def test_generate_recipe_plan_enriches_savings_and_known_nutrition(tmp_path: Pat
     recipe = result.recipes[0]
     assert result.candidate_product_count == 2
     assert recipe.savings.baseline_total == 6.0
-    assert recipe.savings.promo_total == 4.0
-    assert recipe.savings.savings == 2.0
+    assert recipe.savings.promo_total == 3.0
+    assert recipe.savings.savings == 3.0
+    assert recipe.savings.notes == [
+        "1+1 gratis is prorated in the recipe savings; "
+        "buy at least 2 qualifying products to activate this bonus."
+    ]
+    assert recipe.ingredients[-1].model_dump(mode="json")["packages_to_buy"] == "-"
     assert recipe.nutrition_report.known_bonus_total["energy_kcal"] == 300.0
     assert recipe.nutrition_report.known_bonus_total["protein_g"] == 12.0
     assert recipe.validation_warnings == []

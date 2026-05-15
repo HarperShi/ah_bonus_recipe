@@ -4,7 +4,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_serializer, field_validator
 
 
 class DiscountCode(str, Enum):
@@ -125,6 +125,19 @@ class RecipeIngredient(BaseModel):
     bonus_product_id: int | None = None
     packages_to_buy: int = Field(default=0, ge=0)
 
+    @field_validator("packages_to_buy", mode="before")
+    @classmethod
+    def parse_display_package_count(cls, value: Any) -> Any:
+        if value == "-":
+            return 0
+        return value
+
+    @field_serializer("packages_to_buy")
+    def serialize_package_count(self, value: int) -> int | str:
+        if self.bonus_product_id is None and value == 0:
+            return "-"
+        return value
+
 
 class RecipeNutritionEstimate(BaseModel):
     energy_kcal: float | None = None
@@ -175,6 +188,7 @@ class RecipeSavingsSummary(BaseModel):
     baseline_total_label: str = "Normal price for bonus products"
     promo_total_label: str = "Bonus price for bonus products"
     savings_label: str = "You save on bonus products"
+    notes: list[str] = Field(default_factory=list)
     supported: bool = True
     unsupported_reasons: list[str] = Field(default_factory=list)
 

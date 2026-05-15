@@ -73,6 +73,28 @@ def test_estimate_product_savings_for_x_plus_y_free() -> None:
     assert result.baseline_total == 6.0
     assert result.promo_total == 3.0
     assert result.savings == 3.0
+    assert result.notes == (
+        "1+1 gratis is prorated in the recipe savings; "
+        "buy at least 2 qualifying products to activate this bonus.",
+    )
+
+
+def test_estimate_product_savings_prorates_two_plus_one_free() -> None:
+    product = bonus_product(
+        labels=[{"code": "DISCOUNT_X_PLUS_Y_FREE", "count": 2, "free_count": 1}],
+        price_before_bonus=3.0,
+    )
+
+    result = estimate_product_savings(product, quantity=1)
+
+    assert result.supported is True
+    assert result.baseline_total == 3.0
+    assert result.promo_total == 2.0
+    assert result.savings == 1.0
+    assert result.notes == (
+        "2+1 gratis is prorated in the recipe savings; "
+        "buy at least 3 qualifying products to activate this bonus.",
+    )
 
 
 def test_estimate_product_savings_for_fixed_price() -> None:

@@ -47,6 +47,7 @@ class DiscountEstimate:
     promo_total: float
     savings: float
     reason: str | None = None
+    notes: tuple[str, ...] = ()
 
     @classmethod
     def unsupported(
@@ -126,6 +127,19 @@ def buy_n_pay_m(
             promo += sum(group)
         else:
             promo += sum(group[:pay_quantity])
+    return SavingsResult(baseline, round(promo, 2))
+
+
+def x_plus_y_free_prorated(
+    lines: list[CartLine],
+    *,
+    paid_count: int,
+    free_count: int,
+) -> SavingsResult:
+    baseline = baseline_total(lines)
+    bundle_count = paid_count + free_count
+    savings = baseline * free_count / bundle_count
+    promo = baseline - savings
     return SavingsResult(baseline, round(promo, 2))
 
 
@@ -274,12 +288,17 @@ def estimate_discount_for_lines(
     if code == "DISCOUNT_X_PLUS_Y_FREE":
         label = discount_labels[0]
         if label.count and label.free_count:
-            result = buy_n_pay_m(
+            result = x_plus_y_free_prorated(
                 lines,
-                buy_quantity=label.count + label.free_count,
-                pay_quantity=label.count,
+                paid_count=label.count,
+                free_count=label.free_count,
             )
-            return supported_estimate(code, result.baseline_total, result.promo_total)
+            return supported_estimate(
+                code,
+                result.baseline_total,
+                result.promo_total,
+                notes=(x_plus_y_activation_note(label.count, label.free_count),),
+            )
         return DiscountEstimate.unsupported(
             discount_code=code,
             reason="missing_x_plus_y_fields",
@@ -342,7 +361,13 @@ def current_price_or_unsupported(
     return supported_estimate(code, baseline, promo_total)
 
 
-def supported_estimate(code: str | None, baseline: float, promo_total: float) -> DiscountEstimate:
+def supported_estimate(
+    code: str | None,
+    baseline: float,
+    promo_total: float,
+    *,
+    notes: tuple[str, ...] = (),
+) -> DiscountEstimate:
     baseline = round(baseline, 2)
     promo_total = round(promo_total, 2)
     return DiscountEstimate(
@@ -351,6 +376,7 @@ def supported_estimate(code: str | None, baseline: float, promo_total: float) ->
         baseline_total=baseline,
         promo_total=promo_total,
         savings=round(baseline - promo_total, 2),
+        notes=notes,
     )
 
 
@@ -365,3 +391,11 @@ def parse_discount_amount(description: str | None) -> float | None:
     if not match:
         return None
     return float(match.group(1).replace(",", "."))
+
+
+def x_plus_y_activation_note(paid_count: int, free_count: int) -> str:
+    minimum_quantity = paid_count + free_count
+    return (
+        f"{paid_count}+{free_count} gratis is prorated in the recipe savings; "
+        f"buy at least {minimum_quantity} qualifying products to activate this bonus."
+    )

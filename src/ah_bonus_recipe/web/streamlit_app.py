@@ -80,6 +80,8 @@ if submitted:
             st.write(f"{recipe.cuisine} | {recipe.servings} servings | {recipe.total_time_minutes} minutes")
             st.metric(recipe.savings.savings_label, f"€{recipe.savings.savings:.2f}")
             st.caption(recipe.savings.description)
+            for note in recipe.savings.notes:
+                st.caption(note)
             col1, col2 = st.columns(2)
             col1.caption(f"{recipe.savings.baseline_total_label}: €{recipe.savings.baseline_total:.2f}")
             col2.caption(f"{recipe.savings.promo_total_label}: €{recipe.savings.promo_total:.2f}")
@@ -101,7 +103,7 @@ if submitted:
                 ]
             )
             st.subheader("Ingredients")
-            st.table([ingredient.model_dump() for ingredient in recipe.ingredients])
+            st.table([ingredient.model_dump(mode="json") for ingredient in recipe.ingredients])
             st.subheader("Nutrition")
             st.write("Estimated whole meal")
             st.json(recipe.nutrition_report.estimated_total.model_dump(exclude_none=True))
