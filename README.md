@@ -54,11 +54,20 @@ For a quick smoke test without scraping every product:
 uv run ah-bonus scrape-week --max-products 10
 ```
 
+Generate a quality and discount coverage report:
+
+```bash
+uv run ah-bonus quality-report
+```
+
+This writes `data/processed/latest_quality_report.json`, including field coverage, products with missing nutrition/allergen/ingredient/portion data, discount label coverage, and sample one-pack savings estimates.
+
 ## Next Milestones
 
 1. Add SQLite or Parquet persistence if JSON becomes too slow.
-2. Add recipe validation, savings calculation, and nutrition totals.
-3. Run the Streamlit app with `uv run streamlit run src/ah_bonus_recipe/web/streamlit_app.py`.
+2. Add recipe validation and per-recipe nutrition totals.
+3. Connect recipe ingredient quantities to the discount engine.
+4. Run the Streamlit app with `uv run streamlit run src/ah_bonus_recipe/web/streamlit_app.py`.
 
 ## Weekly Schedule
 

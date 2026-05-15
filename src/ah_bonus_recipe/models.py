@@ -4,7 +4,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class DiscountCode(str, Enum):
@@ -26,6 +26,8 @@ class Image(BaseModel):
 
 
 class DiscountLabel(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     code: str
     default_description: str | None = Field(default=None, alias="defaultDescription")
     count: int | None = None

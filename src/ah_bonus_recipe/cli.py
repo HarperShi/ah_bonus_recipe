@@ -6,6 +6,7 @@ import typer
 from rich import print
 
 from ah_bonus_recipe.config import DISCOVERY_DIR, PROCESSED_DATA_DIR, RAW_DATA_DIR
+from ah_bonus_recipe.quality import DEFAULT_DATASET_PATH, DEFAULT_REPORT_PATH, generate_quality_report
 from ah_bonus_recipe.scraper.discover import run_discovery
 from ah_bonus_recipe.scraper.weekly import DEFAULT_PROMOTION_TYPES, scrape_bonus_week
 
@@ -77,6 +78,35 @@ def scrape_week(
     print(f"Processed dataset: {summary['processed_week_path']}")
     if summary["failed_sections"] or summary["failed_groups"] or summary["failed_products"]:
         print("[yellow]Some requests failed; see raw summary.json for details.[/yellow]")
+
+
+@app.command("quality-report")
+def quality_report(
+    dataset_path: Path = typer.Option(DEFAULT_DATASET_PATH, help="Processed BonusWeekDataset JSON."),
+    output_path: Path = typer.Option(DEFAULT_REPORT_PATH, help="Output path for quality report JSON."),
+    max_issue_products: int | None = typer.Option(
+        None,
+        help="Limit products_with_issues in the report. Omit to include all.",
+    ),
+) -> None:
+    """Generate dataset quality and discount coverage report."""
+
+    report = generate_quality_report(
+        dataset_path=dataset_path,
+        output_path=output_path,
+        max_issue_products=max_issue_products,
+    )
+    field_coverage = report["field_coverage"]
+    discount_support = report["discount_support"]
+    print("[green]Quality report complete[/green]")
+    print(f"Products: {report['product_count']}")
+    print(f"Promotions: {report['promotion_count']}")
+    print(f"Products with issues: {report['products_with_issues_count']}")
+    print(f"Nutrition present: {field_coverage['nutrition']['present']}")
+    print(f"Allergens present: {field_coverage['allergens']['present']}")
+    print(f"Discounts supported: {discount_support.get('supported', 0)}")
+    print(f"Discounts unsupported: {discount_support.get('unsupported', 0)}")
+    print(f"Report: {output_path}")
 
 
 if __name__ == "__main__":
