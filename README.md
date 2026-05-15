@@ -62,11 +62,31 @@ uv run ah-bonus quality-report
 
 This writes `data/processed/latest_quality_report.json`, including field coverage, products with missing nutrition/allergen/ingredient/portion data, discount label coverage, and sample one-pack savings estimates.
 
+Generate recipes from the latest weekly dataset:
+
+```bash
+uv run ah-bonus generate-recipes --servings 2 --recipe-count 3 --minimum-bonus-products 2
+```
+
+Useful preference options:
+
+```bash
+uv run ah-bonus generate-recipes \
+  --allergy milk \
+  --dislike coriander \
+  --cuisine Italian \
+  --main-ingredient seafood \
+  --diet vegetarian \
+  --max-cooking-minutes 35
+```
+
+This writes `data/processed/latest_recipes.json`. The OpenAI API proposes structured recipes; local code validates bonus product IDs, calculates AH Bonus savings from pack counts and promotion labels, and reports known nutrition from AH product data alongside the model's full-meal nutrition estimate.
+
 ## Next Milestones
 
 1. Add SQLite or Parquet persistence if JSON becomes too slow.
-2. Add recipe validation and per-recipe nutrition totals.
-3. Connect recipe ingredient quantities to the discount engine.
+2. Improve package-size parsing and serving-size conversions for more nutrition rows.
+3. Add retry/repair loops when OpenAI returns recipes that do not meet validation.
 4. Run the Streamlit app with `uv run streamlit run src/ah_bonus_recipe/web/streamlit_app.py`.
 
 ## Weekly Schedule

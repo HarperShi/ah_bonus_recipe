@@ -116,3 +116,84 @@ class RecipePreferences(BaseModel):
     equipment: list[str] = Field(default_factory=list)
     recipe_count: int = Field(default=3, ge=1, le=10)
     minimum_bonus_products: int = Field(default=2, ge=1, le=10)
+
+
+class RecipeIngredient(BaseModel):
+    name: str
+    quantity: float = Field(ge=0)
+    unit: str
+    bonus_product_id: int | None = None
+    packages_to_buy: int = Field(default=0, ge=0)
+
+
+class RecipeNutritionEstimate(BaseModel):
+    energy_kcal: float | None = None
+    protein_g: float | None = None
+    carbs_g: float | None = None
+    sugar_g: float | None = None
+    fat_g: float | None = None
+    saturated_fat_g: float | None = None
+    fiber_g: float | None = None
+    salt_g: float | None = None
+
+
+class GeneratedRecipe(BaseModel):
+    title: str
+    cuisine: str
+    servings: int = Field(ge=1)
+    total_time_minutes: int = Field(ge=1)
+    bonus_product_ids: list[int] = Field(default_factory=list)
+    ingredients: list[RecipeIngredient] = Field(default_factory=list)
+    prep: list[str] = Field(default_factory=list)
+    steps: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    estimated_nutrition_total: RecipeNutritionEstimate
+    estimated_nutrition_per_serving: RecipeNutritionEstimate
+
+
+class RecipeBonusProductUse(BaseModel):
+    product_id: int
+    title: str
+    url: HttpUrl | None = None
+    quantity: float
+    unit: str
+    packages_to_buy: int
+    promotion_id: str | None = None
+    promotion_title: str | None = None
+    bonus_mechanism: str | None = None
+    price_before_bonus: float | None = None
+    current_price: float | None = None
+
+
+class RecipeSavingsSummary(BaseModel):
+    currency: str = "EUR"
+    baseline_total: float = 0.0
+    promo_total: float = 0.0
+    savings: float = 0.0
+    supported: bool = True
+    unsupported_reasons: list[str] = Field(default_factory=list)
+
+
+class RecipeNutritionReport(BaseModel):
+    known_bonus_total: dict[str, float] = Field(default_factory=dict)
+    known_bonus_per_serving: dict[str, float] = Field(default_factory=dict)
+    estimated_total: RecipeNutritionEstimate
+    estimated_per_serving: RecipeNutritionEstimate
+    missing_bonus_nutrition_product_ids: list[int] = Field(default_factory=list)
+    unconverted_bonus_nutrition_product_ids: list[int] = Field(default_factory=list)
+
+
+class EnrichedRecipe(GeneratedRecipe):
+    bonus_product_uses: list[RecipeBonusProductUse] = Field(default_factory=list)
+    savings: RecipeSavingsSummary
+    nutrition_report: RecipeNutritionReport
+    validation_warnings: list[str] = Field(default_factory=list)
+
+
+class RecipeGenerationResult(BaseModel):
+    week_start: date
+    week_end: date
+    preferences: RecipePreferences
+    candidate_product_count: int
+    recipes: list[EnrichedRecipe] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
