@@ -15,10 +15,12 @@ import { Alert, AlertDescription } from "./components/ui/alert";
 import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./components/ui/collapsible";
 import { Input } from "./components/ui/input";
 import { Label } from "./components/ui/label";
 import { Select } from "./components/ui/select";
 import { Separator } from "./components/ui/separator";
+import { Slider } from "./components/ui/slider";
 import type {
   BonusProductUse,
   DatasetStatus,
@@ -63,6 +65,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   useEffect(() => {
     void loadInitialData();
@@ -121,11 +124,12 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-lg font-semibold tracking-normal">AH Bonus Recipe Finder</h1>
-              <p className="text-sm text-muted-foreground">Weekly deals, calmer meal planning.</p>
+              <p className="text-sm text-muted-foreground">Save more. Cook simply.</p>
             </div>
           </div>
 
           <StatusCard status={status} loading={statusLoading} onRefresh={loadInitialData} />
+          <HowItWorks />
 
           <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
             <section className="space-y-4">
@@ -162,15 +166,16 @@ export default function App() {
                   <Label htmlFor="candidate-limit">Candidate products</Label>
                   <span className="text-sm text-muted-foreground">{form.candidateLimit}</span>
                 </div>
-                <input
+                <Slider
                   id="candidate-limit"
-                  className="w-full accent-primary"
-                  type="range"
+                  aria-label="Candidate products"
                   min={30}
                   max={160}
                   step={10}
-                  value={form.candidateLimit}
-                  onChange={(event) => setForm({ ...form, candidateLimit: Number(event.target.value) })}
+                  value={[form.candidateLimit]}
+                  onValueChange={([candidateLimit]) =>
+                    setForm({ ...form, candidateLimit: candidateLimit ?? form.candidateLimit })
+                  }
                 />
               </div>
             </section>
@@ -198,79 +203,82 @@ export default function App() {
               />
             </section>
 
-            <details className="group rounded-lg border bg-card">
-              <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium">
-                Fine tune preferences
-                <span className="float-right text-muted-foreground group-open:hidden">+</span>
-                <span className="float-right text-muted-foreground hidden group-open:inline">-</span>
-              </summary>
-              <div className="space-y-4 border-t px-4 py-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <SelectField
-                    label="Spice"
-                    value={form.spiceLevel}
-                    options={spiceLevels}
-                    onChange={(spiceLevel) => setForm({ ...form, spiceLevel })}
-                  />
-                  <SelectField
-                    label="Skill"
-                    value={form.skillLevel}
-                    options={skillLevels}
-                    onChange={(skillLevel) => setForm({ ...form, skillLevel })}
-                  />
-                  <SelectField
-                    label="Budget"
-                    value={form.budget}
-                    options={budgets}
-                    onChange={(budget) => setForm({ ...form, budget })}
-                  />
-                  <NumberField
-                    label="Minutes"
-                    icon={<Clock size={15} />}
-                    min={5}
-                    max={240}
-                    value={form.maxCookingMinutes}
-                    onChange={(maxCookingMinutes) => setForm({ ...form, maxCookingMinutes })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Allergies</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {allergyOptions.map((allergy) => (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={form.allergies.includes(allergy) ? "default" : "outline"}
-                        key={allergy}
-                        onClick={() => toggleAllergy(allergy)}
-                      >
-                        {allergy}
-                      </Button>
-                    ))}
+            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+              <Card>
+                <CollapsibleTrigger asChild>
+                  <Button className="h-auto w-full justify-between px-4 py-3" type="button" variant="ghost">
+                    Fine tune preferences
+                    <span className="text-muted-foreground">{advancedOpen ? "-" : "+"}</span>
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4 border-t px-4 py-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <SelectField
+                      label="Spice"
+                      value={form.spiceLevel}
+                      options={spiceLevels}
+                      onChange={(spiceLevel) => setForm({ ...form, spiceLevel })}
+                    />
+                    <SelectField
+                      label="Skill"
+                      value={form.skillLevel}
+                      options={skillLevels}
+                      onChange={(skillLevel) => setForm({ ...form, skillLevel })}
+                    />
+                    <SelectField
+                      label="Budget"
+                      value={form.budget}
+                      options={budgets}
+                      onChange={(budget) => setForm({ ...form, budget })}
+                    />
+                    <NumberField
+                      label="Minutes"
+                      icon={<Clock size={15} />}
+                      min={5}
+                      max={240}
+                      value={form.maxCookingMinutes}
+                      onChange={(maxCookingMinutes) => setForm({ ...form, maxCookingMinutes })}
+                    />
                   </div>
-                </div>
 
-                <TextField
-                  label="Main ingredients"
-                  value={form.mainIngredients}
-                  placeholder="salmon, chicken, rice"
-                  onChange={(mainIngredients) => setForm({ ...form, mainIngredients })}
-                />
-                <TextField
-                  label="Disliked ingredients"
-                  value={form.dislikedIngredients}
-                  placeholder="coriander, mushrooms"
-                  onChange={(dislikedIngredients) => setForm({ ...form, dislikedIngredients })}
-                />
-                <TextField
-                  label="Equipment"
-                  value={form.equipment}
-                  placeholder="oven, blender, air fryer"
-                  onChange={(equipment) => setForm({ ...form, equipment })}
-                />
-              </div>
-            </details>
+                  <div className="space-y-2">
+                    <Label>Allergies</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {allergyOptions.map((allergy) => (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={form.allergies.includes(allergy) ? "default" : "outline"}
+                          key={allergy}
+                          onClick={() => toggleAllergy(allergy)}
+                        >
+                          {allergy}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <TextField
+                    label="Main ingredients"
+                    value={form.mainIngredients}
+                    placeholder="salmon, chicken, rice"
+                    onChange={(mainIngredients) => setForm({ ...form, mainIngredients })}
+                  />
+                  <TextField
+                    label="Disliked ingredients"
+                    value={form.dislikedIngredients}
+                    placeholder="coriander, mushrooms"
+                    onChange={(dislikedIngredients) => setForm({ ...form, dislikedIngredients })}
+                  />
+                  <TextField
+                    label="Equipment"
+                    value={form.equipment}
+                    placeholder="oven, blender, air fryer"
+                    onChange={(equipment) => setForm({ ...form, equipment })}
+                  />
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
 
             <Button
               className="h-11 w-full"
@@ -286,9 +294,9 @@ export default function App() {
         <section className="min-w-0">
           <header className="mb-8 flex flex-col justify-between gap-4 border-b pb-6 sm:flex-row sm:items-end">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Weekly Bonus Menu</p>
+              <p className="text-sm font-medium text-muted-foreground">Bonus-first cooking</p>
               <h2 className="mt-2 text-3xl font-semibold tracking-normal">
-                {result ? `${result.recipes.length} quiet recipe ideas` : "Choose preferences"}
+                {result ? `${result.recipes.length} recipes that use this week's deals` : "Choose preferences"}
               </h2>
             </div>
             <div className="grid grid-cols-2 gap-6 text-sm">
@@ -308,7 +316,7 @@ export default function App() {
           ) : null}
 
           {result?.warnings.length ? (
-            <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-900">
+            <Alert className="mb-6 border-accent/30 bg-accent/10 text-foreground">
               <AlertDescription>{result.warnings.join(" ")}</AlertDescription>
             </Alert>
           ) : null}
@@ -338,7 +346,7 @@ function StatusCard({
       <CardContent className="flex items-start justify-between gap-3 p-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className={status?.dataset_exists ? "h-2 w-2 rounded-full bg-emerald-600" : "h-2 w-2 rounded-full bg-destructive"} />
+            <span className={status?.dataset_exists ? "h-2 w-2 rounded-full bg-primary" : "h-2 w-2 rounded-full bg-accent"} />
             <p className="truncate text-sm font-medium">
               {status?.dataset_exists ? `${status.week_start} to ${status.week_end}` : "Dataset missing"}
             </p>
@@ -352,6 +360,21 @@ function StatusCard({
         <Button variant="ghost" size="icon" type="button" onClick={onRefresh} aria-label="Refresh status">
           <RefreshCw className={loading ? "animate-spin" : ""} size={16} />
         </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <Card className="mt-4">
+      <CardContent className="space-y-3 p-4 text-sm">
+        <p className="font-medium">How it works</p>
+        <div className="space-y-2 text-muted-foreground">
+          <p>1. Choose the meal and dietary constraints.</p>
+          <p>2. Recipes are generated from this week's AH Bonus products.</p>
+          <p>3. Savings count only the Bonus products used in the recipe.</p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -377,7 +400,7 @@ function RecipeCard({ recipe }: { recipe: EnrichedRecipe }) {
           </div>
           <div className="min-w-[168px] rounded-lg border bg-muted p-4 text-right">
             <p className="text-sm text-muted-foreground">{recipe.savings.savings_label}</p>
-            <p className="mt-1 text-2xl font-semibold">EUR {recipe.savings.savings.toFixed(2)}</p>
+            <p className="mt-1 text-2xl font-semibold text-accent">EUR {recipe.savings.savings.toFixed(2)}</p>
           </div>
         </div>
 
@@ -406,7 +429,7 @@ function RecipeCard({ recipe }: { recipe: EnrichedRecipe }) {
         </div>
 
         {recipe.validation_warnings.length ? (
-          <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+          <Alert className="border-accent/30 bg-accent/10 text-foreground">
             <AlertDescription>{recipe.validation_warnings.join(" ")}</AlertDescription>
           </Alert>
         ) : null}
@@ -498,7 +521,7 @@ function StepsList({ title, items, ordered = false }: { title: string; items: st
 
 function ErrorMessage({ message }: { message: string }) {
   return (
-    <Alert className="mb-6 border-destructive/30 bg-destructive/5 text-destructive">
+    <Alert className="mb-6 border-accent/30 bg-accent/10 text-foreground">
       <AlertCircle size={16} />
       <AlertDescription>{message}</AlertDescription>
     </Alert>
@@ -595,14 +618,15 @@ function SegmentedControl({
       <Label>{label}</Label>
       <div className="grid grid-cols-4 rounded-lg border bg-muted p-1">
         {options.map((option) => (
-          <button
+          <Button
             type="button"
-            className={value === option ? "rounded-md bg-background px-2 py-1.5 text-sm font-medium shadow-sm" : "px-2 py-1.5 text-sm text-muted-foreground"}
+            className="h-8 px-2"
+            variant={value === option ? "secondary" : "ghost"}
             onClick={() => onChange(option)}
             key={option}
           >
             {option}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

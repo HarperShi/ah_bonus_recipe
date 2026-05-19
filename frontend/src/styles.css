@@ -11,6 +11,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -31,7 +33,9 @@
   --primary-foreground: #ffffff;
   --secondary: #eef3ef;
   --secondary-foreground: #214f43;
-  --destructive: #a33b2f;
+  --accent: #b97432;
+  --accent-foreground: #ffffff;
+  --destructive: #b97432;
   --border: #e4dfd6;
   --input: #d8d2c7;
   --ring: #214f43;
@@ -59,8 +63,4 @@ select {
 
 button {
   cursor: pointer;
-}
-
-summary::-webkit-details-marker {
-  display: none;
 }
