@@ -90,7 +90,7 @@ uv run ah-bonus generate-recipes \
 
 This writes `data/processed/latest_recipes.json`. The OpenAI API proposes structured recipes; local code validates bonus product IDs, calculates AH Bonus savings from pack counts and promotion labels, and reports known nutrition from AH product data alongside the model's full-meal nutrition estimate.
 
-Run the React/Vite website:
+Run the React/Vite website. The frontend uses Tailwind and local Shadcn-style UI primitives:
 
 ```bash
 uv run ah-bonus serve-api --reload
